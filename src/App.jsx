@@ -22,7 +22,10 @@ export default function App() {
             else return sv;
          });
          setSquareValues(updatedSqureValues);
-         setHistory([...history, updatedSqureValues]);
+         setHistory([
+            ...history,
+            { nextPiece, squareValues: updatedSqureValues },
+         ]);
          setNextPiece((pre) => (pre === 'x' ? 'o' : 'x'));
          nextPiece === 'x' ? audioX.play() : audioO.play();
       }
@@ -141,13 +144,18 @@ export default function App() {
                      Game Move History
                   </h2>
                   <div className="bg-white/10 p-4 flex gap-2 flex-wrap">
-                     {history.map((h, i) => (
+                     {history.map((historyObj, i) => (
                         <button
-                           onClick={() => setSquareValues(h)}
+                           onClick={() => {
+                              setSquareValues(historyObj.squareValues);
+                              setNextPiece(
+                                 historyObj.nextPiece === 'x' ? 'o' : 'x'
+                              );
+                           }}
                            key={i}
                            className="bg-orange-100 bg-opacity-50 py-1 px-2 rounded-md font-medium"
                         >
-                           Go to move #{i}
+                           Go to move #{i + 1}
                         </button>
                      ))}
                   </div>
