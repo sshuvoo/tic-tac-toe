@@ -80,7 +80,7 @@ export default function App() {
                   <div className="absolute h-[90%] bg-white left-2/3 -translate-x-1/3 w-1 rounded-2xl top-1/2 -translate-y-1/2"></div>
                </div>
                <div>
-                  <div className="font-semibold text-3xl space-x-3 flex items-center">
+                  <div className="font-semibold text-lg sm:text-3xl space-x-3 flex items-center">
                      <button
                         onClick={() => handleChoosePiece('x')}
                         className={`text-[rgb(84,84,84)] rounded-md px-3 py-1 flex items-center gap-x-2 ${
