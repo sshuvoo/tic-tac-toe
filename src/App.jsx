@@ -4,12 +4,12 @@ import xAudio from './assets/x.mp3';
 import oAudio from './assets/o.mp3';
 import gameOverAudio from './assets/game-over.mp3';
 import victoryAudio from './assets/victory.mp3';
-import MoveHistory from './components/MoveHistory';
 import Header from './components/Header';
 import GameBoard from './components/GameBoard';
+const audioX = new Audio(xAudio);
+const audioO = new Audio(oAudio);
 
 export default function App() {
-   const [history, setHistory] = useState([]);
    const [squareValues, setSquareValues] = useState(Array(9).fill(null));
    const [nextPiece, setNextPiece] = useState('x');
    const [playWith, setPlayWith] = useState('computer');
@@ -17,20 +17,14 @@ export default function App() {
    const [difficulty, setDifficulty] = useState('easy');
    const [winStat, setWinStat] = useState({ x: 0, o: 0, tie: 0 });
    const winner = calcWinner(squareValues);
-   const audioX = new Audio(xAudio);
-   const audioO = new Audio(oAudio);
 
    const handleClick = (i) => {
-      if (!squareValues[i] && !winner) {
+      if (!squareValues[i] && !winner && !engineMove) {
          const updatedSqureValues = squareValues.map((sv, index) => {
             if (index === i) return nextPiece;
             else return sv;
          });
          setSquareValues(updatedSqureValues);
-         setHistory([
-            ...history,
-            { nextPiece, squareValues: updatedSqureValues },
-         ]);
          setNextPiece((pre) => (pre === 'x' ? 'o' : 'x'));
          nextPiece === 'x' ? audioX.play() : audioO.play();
          if (playWith === 'computer') setEngineMove(true);
@@ -44,28 +38,25 @@ export default function App() {
             if (square === null) availableSquare.push(index);
          });
          if (availableSquare.length > 0) {
-            const randomIndex = Math.round(
+            const randomIndex = Math.floor(
                Math.random() * availableSquare.length
             );
-            console.log(availableSquare, randomIndex);
             const updatedSqureValues = squareValues.map((sv, index) => {
                if (index === availableSquare[randomIndex]) return nextPiece;
                else return sv;
             });
-            console.log(updatedSqureValues);
             setTimeout(() => {
                setSquareValues(updatedSqureValues);
                nextPiece === 'x' ? audioX.play() : audioO.play();
                setNextPiece((pre) => (pre === 'x' ? 'o' : 'x'));
+               setEngineMove(false);
             }, 500);
-            setEngineMove(false);
          }
       }
-   }, [engineMove, squareValues, nextPiece]);
+   }, [engineMove, squareValues, nextPiece, winner]);
 
    const handlePlayAgain = () => {
       setSquareValues(Array(9).fill(null));
-      setHistory([]);
    };
 
    const handleResetScore = () => setWinStat({ x: 0, o: 0, tie: 0 });
@@ -173,13 +164,6 @@ export default function App() {
                   )}
                </div>
             </div>
-            {history.length > 0 && (
-               <MoveHistory
-                  history={history}
-                  setSquareValues={setSquareValues}
-                  setNextPiece={setNextPiece}
-               />
-            )}
          </div>
       </main>
    );
