@@ -1,15 +1,20 @@
 import { useEffect, useState } from 'react';
-import Square from './components/Square';
 import calcWinner from './utils/calculateWinner';
 import xAudio from './assets/x.mp3';
 import oAudio from './assets/o.mp3';
 import gameOverAudio from './assets/game-over.mp3';
 import victoryAudio from './assets/victory.mp3';
+import MoveHistory from './components/MoveHistory';
+import Header from './components/Header';
+import GameBoard from './components/GameBoard';
 
 export default function App() {
    const [history, setHistory] = useState([]);
    const [squareValues, setSquareValues] = useState(Array(9).fill(null));
    const [nextPiece, setNextPiece] = useState('x');
+   const [playWith, setPlayWith] = useState('computer');
+   const [engineMove, setEngineMove] = useState(false);
+   const [difficulty, setDifficulty] = useState('easy');
    const [winStat, setWinStat] = useState({ x: 0, o: 0, tie: 0 });
    const winner = calcWinner(squareValues);
    const audioX = new Audio(xAudio);
@@ -28,8 +33,35 @@ export default function App() {
          ]);
          setNextPiece((pre) => (pre === 'x' ? 'o' : 'x'));
          nextPiece === 'x' ? audioX.play() : audioO.play();
+         if (playWith === 'computer') setEngineMove(true);
       }
    };
+
+   useEffect(() => {
+      if (engineMove && !winner) {
+         const availableSquare = [];
+         squareValues.forEach((square, index) => {
+            if (square === null) availableSquare.push(index);
+         });
+         if (availableSquare.length > 0) {
+            const randomIndex = Math.round(
+               Math.random() * availableSquare.length
+            );
+            console.log(availableSquare, randomIndex);
+            const updatedSqureValues = squareValues.map((sv, index) => {
+               if (index === availableSquare[randomIndex]) return nextPiece;
+               else return sv;
+            });
+            console.log(updatedSqureValues);
+            setTimeout(() => {
+               setSquareValues(updatedSqureValues);
+               nextPiece === 'x' ? audioX.play() : audioO.play();
+               setNextPiece((pre) => (pre === 'x' ? 'o' : 'x'));
+            }, 500);
+            setEngineMove(false);
+         }
+      }
+   }, [engineMove, squareValues, nextPiece]);
 
    const handlePlayAgain = () => {
       setSquareValues(Array(9).fill(null));
@@ -60,28 +92,13 @@ export default function App() {
    return (
       <main className="min-h-screen bg-[#14bdac]">
          <div className="max-w-7xl mx-auto px-4">
-            <div className="lg:pt-20 pt-10 lg:mb-20 mb-10">
-               <h1 className="font-semibold text-5xl text-center">
-                  <span className="text-gray-700">Tic-</span>
-                  <span className="text-gray-200">Tac</span>
-                  <span className="text-gray-700">-Toe</span>
-               </h1>
-            </div>
+            <Header />
 
             <div className="mx-auto max-w-7xl flex flex-col items-center lg:items-start gap-y-10 justify-center lg:grid lg:grid-cols-[auto,auto] lg:gap-x-10">
-               <div className="w-[300px] h-[300px] grid grid-cols-3 grid-rows-3 justify-center relative border border-black/10 rounded-lg shadow-md">
-                  {squareValues.map((sv, i) => (
-                     <Square
-                        key={i}
-                        squareValue={sv}
-                        handleClick={() => handleClick(i)}
-                     />
-                  ))}
-                  <div className="absolute h-1 bg-white top-1/3 -translate-y-2/3 w-[90%] rounded-2xl left-1/2 -translate-x-1/2"></div>
-                  <div className="absolute h-1 bg-white top-2/3 -translate-y-1/3 w-[90%] rounded-2xl left-1/2 -translate-x-1/2"></div>
-                  <div className="absolute h-[90%] bg-white left-1/3 -translate-x-2/3 w-1 rounded-2xl top-1/2 -translate-y-1/2"></div>
-                  <div className="absolute h-[90%] bg-white left-2/3 -translate-x-1/3 w-1 rounded-2xl top-1/2 -translate-y-1/2"></div>
-               </div>
+               <GameBoard
+                  squareValues={squareValues}
+                  handleClick={handleClick}
+               />
                <div>
                   <div className="font-semibold text-lg sm:text-3xl space-x-3 flex items-center">
                      <button
@@ -107,6 +124,24 @@ export default function App() {
                      >
                         <span>Player O</span>
                      </button>
+                  </div>
+                  <div className="mt-5 space-x-4">
+                     <select
+                        onChange={(e) => setPlayWith(e.target.value)}
+                        value={playWith}
+                        className="px-2 py-1 font-medium text-xl rounded-md bg-teal-200 focus:outline-none"
+                     >
+                        <option value={'friend'}>Play with Friend</option>
+                        <option value={'computer'}>Play with Computer</option>
+                     </select>
+                     <select
+                        onChange={(e) => setDifficulty(e.target.value)}
+                        value={difficulty}
+                        className="px-2 py-1 font-medium text-xl rounded-md bg-teal-200 focus:outline-none"
+                     >
+                        <option value={'easy'}>Easy</option>
+                        <option value={'hard'}>Hard</option>
+                     </select>
                   </div>
                   <div className="flex justify-center gap-x-4 lg:block lg:justify-start lg:gap-x-0 lg:space-x-4 mt-5 ">
                      <button
@@ -139,27 +174,11 @@ export default function App() {
                </div>
             </div>
             {history.length > 0 && (
-               <div className="mt-10">
-                  <h2 className="text-xl font-medium text-white/80 mb-2">
-                     Game Move History
-                  </h2>
-                  <div className="bg-white/10 p-4 flex gap-2 flex-wrap">
-                     {history.map((historyObj, i) => (
-                        <button
-                           onClick={() => {
-                              setSquareValues(historyObj.squareValues);
-                              setNextPiece(
-                                 historyObj.nextPiece === 'x' ? 'o' : 'x'
-                              );
-                           }}
-                           key={i}
-                           className="bg-orange-100 bg-opacity-50 py-1 px-2 rounded-md font-medium"
-                        >
-                           Go to move #{i + 1}
-                        </button>
-                     ))}
-                  </div>
-               </div>
+               <MoveHistory
+                  history={history}
+                  setSquareValues={setSquareValues}
+                  setNextPiece={setNextPiece}
+               />
             )}
          </div>
       </main>
