@@ -37,7 +37,12 @@ export default function App() {
    };
 
    useEffect(() => {
-      if (engineMove && !winner.result && difficulty === 'easy') {
+      if (
+         engineMove &&
+         !winner.result &&
+         playWith === 'computer' &&
+         difficulty === 'easy'
+      ) {
          const availableSquare = [];
          squareValues.forEach((square, index) => {
             if (square === null) availableSquare.push(index);
@@ -58,10 +63,15 @@ export default function App() {
             }, 500);
          }
       }
-   }, [engineMove, squareValues, nextPiece, winner, difficulty]);
+   }, [engineMove, squareValues, nextPiece, winner, difficulty, playWith]);
 
    useEffect(() => {
-      if (engineMove && !winner.result && difficulty === 'hard') {
+      if (
+         engineMove &&
+         !winner.result &&
+         playWith === 'computer' &&
+         difficulty === 'hard'
+      ) {
          const indexedSV = squareValues.map((sv, i) => (sv === null ? i : sv));
          const bestMove = getBestMove(humanPiece, enginePiece)(
             indexedSV,
@@ -86,13 +96,17 @@ export default function App() {
       difficulty,
       enginePiece,
       humanPiece,
+      playWith,
    ]);
 
    const handlePlayAgain = () => {
       setSquareValues(Array(9).fill(null));
    };
 
-   const handleResetScore = () => setWinStat({ x: 0, o: 0, tie: 0 });
+   const handleResetScore = () => {
+      setWinStat({ x: 0, o: 0, tie: 0 });
+      handlePlayAgain();
+   };
 
    const handleChoosePiece = (piece) => {
       if (squareValues.every((sv) => sv === null)) {
@@ -217,15 +231,40 @@ export default function App() {
                      <div className="mb-4 mt-10">
                         {winner.result === 'tie' ? (
                            <h2 className="text-4xl lg:text-5xl font-medium text-center lg:text-left text-orange-400">
-                              Ops! It&apos;s a Tie
+                              Ops! It&apos;s a Tie 🥺
                            </h2>
                         ) : (
                            <h2 className="text-4xl lg:text-5xl font-medium text-center lg:text-left text-teal-400">
-                              Player{' '}
-                              <span className="capitalize">
-                                 {winner.result}
-                              </span>{' '}
-                              won
+                              {playWith === 'computer' &&
+                                 winner.result === humanPiece && (
+                                    <span>
+                                       {/* Player{' '}
+                                    <span className="capitalize">
+                                       {winner.result}
+                                    </span>{' '} */}
+                                       You won! AI lost.
+                                    </span>
+                                 )}
+                              {playWith === 'computer' &&
+                                 winner.result === enginePiece && (
+                                    <span>
+                                       {/* Player{' '}
+                                       <span className="capitalize">
+                                          {winner.result}
+                                       </span>{' '}
+                                       won */}
+                                       AI Won! You lost.
+                                    </span>
+                                 )}
+                              {playWith === 'friend' && (
+                                 <span>
+                                    Player{' '}
+                                    <span className="capitalize">
+                                       {winner.result}
+                                    </span>{' '}
+                                    won
+                                 </span>
+                              )}
                            </h2>
                         )}
                      </div>
