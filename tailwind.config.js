@@ -8,6 +8,7 @@ export default {
             'draw-x': 'svgdrawX 0.15s linear forwards',
             'draw-x-line': 'lineX 0.5s linear forwards',
             'draw-y-line': 'lineY 0.5s linear forwards',
+            'draw-x-diagonal': 'lineXCorner 0.5s linear forwards',
          },
          keyframes: {
             svgdrawO: {
@@ -21,6 +22,10 @@ export default {
             lineX: {
                '0%': { width: '0px' },
                '100%': { width: '100%' },
+            },
+            lineXCorner: {
+               '0%': { width: '0px' },
+               '100%': { width: '135%' },
             },
             lineY: {
                '0%': { height: '0px' },

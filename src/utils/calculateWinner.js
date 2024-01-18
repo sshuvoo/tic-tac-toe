@@ -16,7 +16,7 @@ export default function calculateWinner(squares) {
          squares[a] === squares[b] &&
          squares[a] === squares[c]
       ) {
-         return squares[a];
+         return { result: squares[a], pattern: [a, b, c] };
       }
       if (
          i === 7 &&
@@ -24,8 +24,8 @@ export default function calculateWinner(squares) {
             return square !== null;
          })
       ) {
-         return 'tie';
+         return { result: 'tie', pattern: [] };
       }
    }
-   return null;
+   return { result: null, pattern: [] };
 }

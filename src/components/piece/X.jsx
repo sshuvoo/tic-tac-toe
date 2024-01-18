@@ -13,7 +13,7 @@ export default function X() {
       <svg
          className="w-14"
          viewBox="0 0 128 128"
-         stroke="rgb(84, 84, 84)"
+         stroke="#14bdac"
          strokeDasharray="135.764"
          strokeDashoffset="0"
       >
